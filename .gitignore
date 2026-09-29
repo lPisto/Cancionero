@@ -1,0 +1,12 @@
+# Dependencias: se regeneran con npm install
+node_modules/
+
+# Reportes de corridas parciales (el reporte de la corrida completa sí se versiona,
+# porque es un entregable de la Entrega 01)
+tests/salida/*-parcial.md
+tests/salida/*-parcial.json
+
+# Archivos del sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store
