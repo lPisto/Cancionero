@@ -1,0 +1,42 @@
+Entorno: Google Chrome 154.0.8037.58 | Mozilla Firefox 155.0
+App bajo prueba: http://127.0.0.1:57228 
+
+TC-01  Reproducir el primer fragmento de 1 segundo............... PASSED  (3.2 s)
+TC-02  Desbloqueo progresivo de segundos tras respuestas incorrectas PASSED  (43.8 s)
+TC-03  Autocompletado por título................................. PASSED  (1.3 s)
+TC-04  Autocompletado por artista, sin tildes ni mayúsculas...... PASSED  (1.1 s)
+TC-05  Búsqueda sin resultados y envío de texto libre............ PASSED  (1.2 s)
+TC-06  Acierto en el primer intento.............................. PASSED  (2.5 s)
+TC-07  Seis respuestas incorrectas............................... PASSED  (3.2 s)
+TC-08  Saltar un intento......................................... PASSED  (3.6 s)
+TC-09  Saltar en el sexto intento................................ PASSED  (1.4 s)
+TC-10  Pantalla de resultado de la ronda......................... PASSED  (31.6 s)
+TC-11  Registrar jugadores válidos............................... PASSED  (1.1 s)
+TC-12  Límites de cantidad de jugadores (1 y 13)................. PASSED  (3.4 s)
+TC-13  Validación de nombres de jugadores........................ PASSED  (1.2 s)
+TC-14  Rotación de turnos entre rondas........................... PASSED  (2.6 s)
+TC-15  Cálculo de puntos según el intento........................ PASSED  (6.8 s)
+TC-16  Partida completa y ganador................................ PASSED  (8.2 s)
+TC-17  Empate en el primer puesto................................ PASSED  (7.4 s)
+TC-18  Compartir el resultado de la partida...................... BLOCKED  (8.0 s)
+        paso 1: esperado «Se abre el menú de compartir del celular con el ganador, sus puntos y el link del juego.» → obtenido «NO EJECUTADO — requiere un celular Android real (ningún integrante tiene uno disponible)»
+        paso 2: esperado «El mensaje aparece precargado con ese texto.» → obtenido «NO EJECUTADO — requiere WhatsApp instalado en Android»
+TC-19  Modo Diario: misma canción y una vez por día.............. PASSED  (3.0 s)
+TC-20  Modo Infinito: siguiente canción y racha.................. PASSED  (3.8 s)
+TC-21  Filtro combinado: género + época.......................... PASSED  (4.6 s)
+TC-22  Combinación de filtros sin canciones...................... PASSED  (1.0 s)
+TC-23  Uso en celular de 360 px de ancho......................... PASSED  (1.6 s)
+TC-24  Falla de conexión con la API de audio..................... PASSED  (3.6 s)
+TC-25  Buscar una canción cuyo título tiene 1 solo carácter...... FAILED  (1.6 s)
+        paso 1: esperado «Aparece la sugerencia "X — Nicky Jam & J Balvin", como pasa con cualquier título del catálogo.» → obtenido «no aparece ninguna sugerencia (ni siquiera «No hay resultados»)»
+        paso 2: esperado «La canción queda elegida y se habilita "Enviar".» → obtenido «no hay ninguna sugerencia para elegir»
+TC-26  Tiempo de carga de una ronda.............................. PASSED  (6.6 s)
+TC-27  Origen e integridad del catálogo de canciones............. PASSED  (1.1 s)
+TC-28  Compatibilidad entre Chrome y Firefox en escritorio....... PASSED  (5.4 s)
+
+═══ RESUMEN ═══
+PASSED 26 · FAILED 1 · BLOCKED 1 · NOT RUN 0 · total 28
+% aprobados sobre ejecutados: 96.3 %
+Duración total: 2.7 min
+
+Reporte: tests/salida/reporte-ejecucion.md

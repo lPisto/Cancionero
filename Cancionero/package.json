@@ -1,0 +1,16 @@
+{
+  "name": "cancionero-v1",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node tests/server.js",
+    "test": "node tests/ejecutar.js",
+    "test:rnf": "node tests/inspeccion-rnf.js",
+    "capturas": "node tests/capturas.js",
+    "reporte": "node tests/resumen-entrega.js"
+  },
+  "license": "ISC",
+  "description": "Cancionero V1 - Proyecto Integrador de Testing de Aplicaciones, Grupo 7, Entrega 01",
+  "devDependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}

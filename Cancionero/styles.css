@@ -1,0 +1,289 @@
+/* Cancionero V1 — hoja de estilos
+   Mobile-first. Referencias de requerimientos no funcionales:
+   RNF-01 usable desde 360 px, áreas táctiles >= 44 px, inputs de 16 px
+   RNF-03 el veredicto de la ronda se lee a 1,5 m (>= 23 px, alto contraste) */
+
+:root{
+  --bg:#0d0f14;
+  --bg2:#151922;
+  --bg3:#1c2230;
+  --linea:#242a37;
+  --texto:#eef1f6;
+  --tenue:#9aa3b5;
+  --acento:#6de2a3;
+  --acento-osc:#06120c;
+  --error:#ff6b6b;
+  --amarillo:#f7c948;
+  --radio:14px;
+  --tap:44px;                      /* RNF-01: área táctil mínima */
+  --fuente:"Outfit","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+
+/* El atributo hidden lo aplica el navegador con display:none, pero cualquier regla
+   propia que fije display (por ejemplo .zona-respuesta{display:flex}) le gana por
+   orden de cascada y el elemento sigue a la vista. Esta regla lo deja siempre firme. */
+[hidden]{display:none !important}
+
+html,body{margin:0;padding:0;overflow-x:hidden}   /* RNF-01: sin scroll horizontal */
+body{
+  background:radial-gradient(900px 480px at 50% -10%,#1c2433 0%,transparent 60%),var(--bg);
+  color:var(--texto);
+  font-family:var(--fuente);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;height:auto}
+
+/* ─────────── Topbar ─────────── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 16px;border-bottom:1px solid var(--linea);
+}
+.logo{margin:0;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.logo span{color:var(--acento)}
+.version{color:var(--tenue);font-size:12px;font-weight:700;letter-spacing:.5px}
+.icon-btn{
+  background:transparent;border:1px solid var(--linea);color:var(--texto);
+  min-width:var(--tap);min-height:var(--tap);border-radius:12px;cursor:pointer;
+  font-size:17px;font-weight:700;display:grid;place-items:center;font-family:inherit;
+}
+.icon-btn:hover{border-color:var(--acento);color:var(--acento)}
+
+/* ─────────── Layout ─────────── */
+.app{
+  width:100%;max-width:520px;margin:0 auto;padding:18px 16px 40px;
+  flex:1;display:flex;flex-direction:column;
+}
+.pantalla{display:flex;flex-direction:column;gap:16px}
+.pantalla[hidden]{display:none}
+.pie{
+  text-align:center;color:var(--tenue);font-size:12px;
+  padding:14px 16px;border-top:1px solid var(--linea);
+}
+.titulo-seccion{margin:0;font-size:20px;font-weight:800}
+.tenue{color:var(--tenue);font-weight:400}
+.mini{margin:0;color:var(--tenue);font-size:13px;line-height:1.45}
+.bloque{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.etiqueta{font-size:13px;font-weight:700;color:var(--tenue);text-transform:uppercase;letter-spacing:.6px}
+
+/* ─────────── Botones ─────────── */
+.btn{
+  min-height:var(--tap);padding:12px 16px;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-size:16px;font-weight:700;border:1px solid var(--linea);
+  background:var(--bg2);color:var(--texto);transition:.15s;width:100%;
+}
+.btn:hover:not(:disabled){border-color:var(--acento)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn.primario{background:var(--acento);color:var(--acento-osc);border-color:var(--acento)}
+.btn.primario:hover:not(:disabled){filter:brightness(1.08)}
+.btn.fantasma{background:transparent}
+.btn.grande{font-size:17px;min-height:52px}
+.btn.chico{width:auto;padding:10px 14px;font-size:15px;align-self:center}
+
+/* ─────────── Selector de modo ─────────── */
+.seg{display:flex;background:var(--bg2);border:1px solid var(--linea);border-radius:13px;padding:4px;gap:4px}
+.seg-btn{
+  flex:1;background:transparent;border:0;color:var(--tenue);min-height:var(--tap);
+  padding:8px 6px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;
+}
+.seg-btn.activo{background:var(--acento);color:var(--acento-osc)}
+
+/* ─────────── Alta de jugadores ─────────── */
+.alta-jugador{display:flex;gap:8px}
+.alta-jugador input{flex:1;min-width:0}
+input[type="text"]{
+  background:var(--bg2);border:1px solid var(--linea);color:var(--texto);
+  border-radius:12px;padding:12px 14px;
+  font-size:16px;                 /* RNF-01: evita el zoom automático de iOS */
+  font-family:inherit;min-height:var(--tap);width:100%;
+}
+input[type="text"]:focus{outline:2px solid var(--acento);outline-offset:1px}
+input[type="text"]::placeholder{color:var(--tenue)}
+
+.jugadores{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.jugadores li{
+  display:flex;align-items:center;gap:10px;background:var(--bg2);
+  border:1px solid var(--linea);border-left-width:4px;border-radius:12px;padding:8px 10px;min-height:var(--tap);
+}
+.jugadores .nombre{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avatar{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:18px;flex:none;background:var(--bg3);
+}
+.btn-quitar{
+  background:transparent;border:1px solid var(--linea);color:var(--tenue);
+  min-width:var(--tap);min-height:var(--tap);border-radius:10px;cursor:pointer;font-size:16px;font-family:inherit;
+}
+.btn-quitar:hover{border-color:var(--error);color:var(--error)}
+
+/* ─────────── Filtros ─────────── */
+.filtros-grid{display:flex;flex-direction:column;gap:12px}
+.filtro-campo{display:flex;flex-direction:column;gap:6px}
+.filtro-campo label{font-size:13px;font-weight:700;color:var(--tenue)}
+select{
+  background:var(--bg2);border:1px solid var(--linea);color:var(--texto);
+  border-radius:12px;padding:12px;font-size:16px;font-family:inherit;
+  min-height:var(--tap);width:100%;cursor:pointer;
+}
+select:focus{outline:2px solid var(--acento);outline-offset:1px}
+.conteo-filtros{
+  font-size:14px;font-weight:700;padding:10px 12px;border-radius:12px;
+  background:var(--bg2);border:1px solid var(--linea);margin:0;
+}
+.conteo-filtros.vacio{border-color:var(--error);color:var(--error)}
+
+/* ─────────── Rachas ─────────── */
+.rachas{display:flex;gap:10px}
+.racha-card{
+  flex:1;background:var(--bg2);border:1px solid var(--linea);border-radius:13px;
+  padding:12px;text-align:center;
+}
+.racha-card b{display:block;font-size:26px;color:var(--acento)}
+.racha-card span{font-size:12px;color:var(--tenue)}
+
+/* ─────────── Turno ─────────── */
+.ronda-info{margin:0;font-size:14px;font-weight:700;color:var(--tenue);letter-spacing:.4px}
+.intento-info{margin:0;font-size:15px;font-weight:800}
+.turno-card{
+  background:var(--bg2);border:2px solid var(--linea);border-radius:18px;
+  padding:26px 18px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;
+}
+.turno-avatar{
+  width:76px;height:76px;border-radius:50%;display:grid;place-items:center;
+  font-size:40px;background:var(--bg3);
+}
+.turno-texto{margin:0;font-size:22px;font-weight:800}
+
+/* ─────────── Juego ─────────── */
+.juego-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.debug{
+  margin:0;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;
+  background:rgba(247,201,72,.12);border:1px dashed var(--amarillo);color:var(--amarillo);
+  word-break:break-word;
+}
+.player{display:flex;flex-direction:column;gap:10px}
+.barra{position:relative;height:16px;background:var(--bg2);border:1px solid var(--linea);border-radius:999px;overflow:hidden}
+.barra-progreso{position:absolute;inset:0 auto 0 0;width:0;background:var(--acento);transition:width .05s linear}
+.barra-marcas{position:absolute;inset:0;pointer-events:none}
+.barra-marcas i{position:absolute;top:0;bottom:0;width:1px;background:var(--linea)}
+.barra-marcas i.on{background:var(--acento);opacity:.55}
+.barra-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--tenue)}
+.btn-play{
+  width:88px;height:88px;border-radius:50%;align-self:center;cursor:pointer;
+  background:var(--acento);color:var(--acento-osc);border:0;font-size:32px;font-family:inherit;
+  display:grid;place-items:center;transition:.15s;
+}
+.btn-play:disabled{opacity:.4;cursor:not-allowed}
+.btn-play.sonando{box-shadow:0 0 0 10px rgba(109,226,163,.18)}
+.estado{margin:0;text-align:center;color:var(--tenue);font-size:14px;min-height:20px}
+
+.intentos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.intentos li{
+  background:var(--bg2);border:1px solid var(--linea);border-radius:11px;
+  min-height:42px;display:flex;align-items:center;gap:8px;padding:6px 12px;
+  font-size:14px;color:var(--tenue);
+}
+.intentos li.mal{border-color:rgba(255,107,107,.45);color:var(--texto)}
+.intentos li.salto{border-color:rgba(247,201,72,.45);color:var(--texto)}
+.intentos li.bien{border-color:var(--acento);background:rgba(109,226,163,.12);color:var(--texto)}
+.intentos li .marca{flex:none;font-size:13px}
+.intentos li .txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ─────────── Buscador ─────────── */
+.zona-respuesta{display:flex;flex-direction:column;gap:10px}
+.buscador{position:relative}
+.btn-clear{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  background:transparent;border:0;color:var(--tenue);cursor:pointer;
+  min-width:var(--tap);min-height:var(--tap);font-size:16px;font-family:inherit;border-radius:10px;
+}
+.sugerencias{
+  list-style:none;margin:6px 0 0;padding:6px;position:absolute;left:0;right:0;top:100%;z-index:20;
+  background:var(--bg3);border:1px solid var(--linea);border-radius:12px;
+  max-height:266px;overflow-y:auto;box-shadow:0 12px 30px rgba(0,0,0,.45);
+}
+.sugerencias li{
+  padding:11px 12px;border-radius:9px;cursor:pointer;font-size:15px;min-height:var(--tap);
+  display:flex;align-items:center;
+}
+.sugerencias li:hover,.sugerencias li.sel{background:var(--bg2)}
+.sugerencias li.vacio{color:var(--tenue);cursor:default}
+.sugerencias li.vacio:hover{background:transparent}
+.acciones{display:flex;gap:10px}
+.acciones .btn{flex:1}
+
+/* ─────────── Resultado ─────────── */
+.veredicto{
+  margin:0;text-align:center;font-weight:900;
+  font-size:30px;                 /* RNF-03: >= 23 px */
+  line-height:1.15;color:var(--acento);
+}
+.veredicto.mal{color:var(--error)}
+.veredicto-detalle{
+  margin:0;text-align:center;font-weight:800;
+  font-size:23px;                 /* RNF-03: >= 23 px */
+  line-height:1.2;color:var(--texto);
+}
+.ficha{display:flex;gap:14px;align-items:center;background:var(--bg2);border:1px solid var(--linea);border-radius:16px;padding:14px}
+.caratula{width:120px;height:120px;border-radius:12px;flex:none;object-fit:cover;background:var(--bg3)}
+.ficha-datos{min-width:0;display:flex;flex-direction:column;gap:4px}
+.ficha-titulo{margin:0;font-size:19px;font-weight:800;line-height:1.2}
+.ficha-artista{margin:0;font-size:16px;color:var(--texto)}
+.ficha-anio{margin:0;font-size:15px;color:var(--tenue);font-weight:700}
+
+/* ─────────── Tablas y podio ─────────── */
+.tabla{width:100%;border-collapse:collapse;background:var(--bg2);border:1px solid var(--linea);border-radius:13px;overflow:hidden}
+.tabla th,.tabla td{padding:11px 10px;text-align:left;font-size:15px;border-bottom:1px solid var(--linea)}
+.tabla th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--tenue)}
+.tabla tr:last-child td{border-bottom:0}
+.tabla td.num{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.tabla .cel-jugador{display:flex;align-items:center;gap:8px}
+.tabla tr.ganador td{background:rgba(109,226,163,.1)}
+
+.podio{display:flex;gap:8px;align-items:flex-end;justify-content:center}
+.podio-puesto{
+  flex:1;background:var(--bg2);border:1px solid var(--linea);border-radius:13px 13px 0 0;
+  padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;
+}
+.podio-puesto.p1{border-color:var(--acento);min-height:150px;order:2}
+.podio-puesto.p2{min-height:122px;order:1}
+.podio-puesto.p3{min-height:104px;order:3}
+.podio-medalla{font-size:24px}
+.podio-nombre{font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}
+.podio-puntos{color:var(--acento);font-weight:800;font-size:16px}
+
+/* ─────────── Modal / toast ─────────── */
+.modal{position:fixed;inset:0;background:rgba(6,8,12,.75);display:grid;place-items:center;padding:16px;z-index:60}
+.modal[hidden]{display:none}
+.modal-caja{
+  background:var(--bg2);border:1px solid var(--linea);border-radius:18px;padding:20px;
+  max-width:460px;width:100%;max-height:86vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;
+}
+.modal-caja h2{margin:0;font-size:20px}
+.lista-ayuda{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;font-size:15px;line-height:1.45}
+.aviso-responsable{
+  margin:0;font-size:14px;line-height:1.5;padding:12px;border-radius:12px;
+  background:rgba(247,201,72,.1);border:1px solid rgba(247,201,72,.35);color:var(--amarillo);
+}
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:80;
+  background:var(--bg3);border:1px solid var(--linea);border-radius:12px;
+  padding:12px 18px;font-size:15px;font-weight:700;max-width:90vw;text-align:center;
+}
+.toast[hidden]{display:none}
+
+/* ─────────── 360 px ─────────── */
+@media (max-width:380px){
+  .app{padding:14px 12px 32px}
+  .caratula{width:96px;height:96px}
+  .veredicto{font-size:27px}
+  .seg-btn{font-size:13px;padding:8px 4px}
+  .turno-texto{font-size:20px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}

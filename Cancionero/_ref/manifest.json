@@ -1,0 +1,17 @@
+{
+  "name": "Cancionero — El juego de la previa",
+  "short_name": "Cancionero",
+  "description": "Adiviná la canción en la menor cantidad de segundos. Modo previa con tragos y prendas para jugar entre amigos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0f14",
+  "theme_color": "#0d0f14",
+  "lang": "es-AR",
+  "categories": ["games", "music", "entertainment"],
+  "icons": [
+    { "src": "icono.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icono.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

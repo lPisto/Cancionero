@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cancionero">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:title" content="Cancionero — El juego de la previa">
+<meta property="og:description" content="Adiviná la canción en la menor cantidad de segundos. Modo previa con tragos y prendas.">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icono.png">
+<title>Cancionero — El juego de la previa</title>
+<meta name="description" content="Adiviná la canción en la menor cantidad de segundos. Modo previa con tragos y prendas para jugar entre amigos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍻</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="icon-btn" id="btn-ayuda" title="Cómo se juega" aria-label="Cómo se juega">?</button>
+  <h1 class="logo">Cancion<span>ero</span></h1>
+  <div class="topbar-right">
+    <span class="conexion" id="conexion" title="Estado de la conexión con iTunes"><i></i><b>…</b></span>
+    <button class="icon-btn" id="btn-stats" title="Estadísticas" aria-label="Estadísticas">📊</button>
+    <button class="icon-btn" id="btn-config" title="Opciones" aria-label="Opciones">⚙️</button>
+  </div>
+</header>
+
+<main class="app">
+
+  <div class="modos">
+    <div class="seg" id="seg-modo">
+      <button class="seg-btn" data-modo="diaria">Diaria</button>
+      <button class="seg-btn" data-modo="infinita">Infinita</button>
+      <button class="seg-btn activo" data-modo="previa">Previa 🍻</button>
+    </div>
+  </div>
+
+  <!-- ══════════ SETUP DE PREVIA ══════════ -->
+  <section class="pantalla" id="setup">
+    <h2 class="titulo-seccion">Armá la previa</h2>
+
+    <div class="bloque">
+      <label class="etiqueta">Jugadores</label>
+      <div class="alta-jugador">
+        <input id="input-jugador" type="text" maxlength="14" placeholder="Nombre" autocomplete="off">
+        <button class="btn primario chico" id="btn-agregar">Agregar</button>
+      </div>
+      <ul class="jugadores" id="lista-jugadores"></ul>
+      <p class="mini" id="aviso-jugadores">Mínimo 2 jugadores.</p>
+    </div>
+
+    <div class="bloque">
+      <label class="etiqueta">Playlist</label>
+      <select id="sel-categoria" class="select-cat ancho"></select>
+    </div>
+
+    <div class="bloque">
+      <label class="etiqueta">Intensidad</label>
+      <div class="seg" id="seg-intensidad">
+        <button class="seg-btn activo" data-nivel="1">Suave</button>
+        <button class="seg-btn" data-nivel="2">Picante</button>
+        <button class="seg-btn" data-nivel="3">Fatal</button>
+      </div>
+      <p class="mini" id="desc-intensidad"></p>
+    </div>
+
+    <div class="bloque">
+      <label class="fila">
+        <span>Contrarreloj ⏱️<br><small class="mini">20 segundos por ronda. Si se acaba, salta solo.</small></span>
+        <input type="checkbox" id="chk-reloj">
+      </label>
+    </div>
+
+    <div class="bloque">
+      <label class="fila">
+        <span>Modo sin alcohol 🥤<br><small class="mini">Los tragos pasan a ser puntos de castigo y prendas.</small></span>
+        <input type="checkbox" id="chk-sinalcohol">
+      </label>
+    </div>
+
+    <button class="btn primario grande" id="btn-empezar">Empezar la previa</button>
+    <p class="legal">+18. Tomá con moderación, cuidá a tus amigos y si tomaste, no manejes. Siempre se puede pasar 🥤.</p>
+  </section>
+
+  <!-- ══════════ JUEGO ══════════ -->
+  <section class="pantalla" id="juego" hidden>
+
+    <div class="tira" id="tira" hidden></div>
+
+    <div class="turno" id="turno" hidden>
+      <div class="turno-izq">
+        <span class="avatar grande" id="turno-avatar"></span>
+        <div class="turno-info">
+          <span class="turno-label">Le toca a</span>
+          <span class="turno-nombre" id="turno-nombre"></span>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-marcador" title="Marcador">🏆</button>
+    </div>
+
+    <div class="mano" id="mano" hidden>
+      <span class="mano-label">Tu mano</span>
+      <div class="mano-cartas" id="mano-cartas"></div>
+    </div>
+
+    <ul class="intentos" id="intentos"></ul>
+
+    <section class="player">
+      <div class="barra" id="barra">
+        <div class="barra-desbloqueada" id="barra-desbloqueada"></div>
+        <div class="barra-progreso" id="barra-progreso"></div>
+        <div class="marcas" id="marcas"></div>
+      </div>
+      <div class="tiempos">
+        <span>0:00</span>
+        <span id="tiempo-max">0:16</span>
+      </div>
+      <div class="controles">
+        <button class="play" id="btn-play" aria-label="Reproducir">
+          <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="ic-stop" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>
+        </button>
+      </div>
+      <p class="reloj" id="reloj" hidden><span id="reloj-num">20</span>s</p>
+      <p class="estado" id="estado">Cargando canción…</p>
+      <button class="btn ghost chico centrado" id="btn-reintentar" hidden>Reintentar</button>
+    </section>
+
+    <section class="respuesta" id="zona-respuesta">
+      <div class="buscador">
+        <input id="input" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
+               placeholder="Escribí el nombre de la canción o el artista…" disabled>
+        <button class="clear" id="btn-clear" aria-label="Borrar" hidden>✕</button>
+        <ul class="sugerencias" id="sugerencias" hidden></ul>
+      </div>
+      <div class="acciones">
+        <button class="btn ghost" id="btn-saltar" disabled>Saltar</button>
+        <button class="btn primario" id="btn-enviar" disabled>Enviar</button>
+      </div>
+      <button class="btn robar" id="btn-robar" hidden>🖐️ Alguien la robó</button>
+      <button class="btn rendirse" id="btn-rendirse" hidden>🏳️ Me rindo</button>
+      <p class="castigo-hint" id="castigo-hint" hidden></p>
+    </section>
+
+    <!-- Resultado de la ronda -->
+    <section class="resultado" id="resultado" hidden>
+      <p class="cartelon" id="cartelon"></p>
+      <div class="res-cabecera">
+        <img id="res-cover" alt="" width="88" height="88">
+        <div>
+          <p class="res-titulo" id="res-titulo"></p>
+          <p class="res-artista" id="res-artista"></p>
+          <p class="res-veredicto" id="res-veredicto"></p>
+        </div>
+      </div>
+      <div class="res-emojis" id="res-emojis"></div>
+
+      <!-- castigo / prenda (previa) -->
+      <div class="castigo" id="castigo" hidden>
+        <p class="castigo-titulo" id="castigo-titulo"></p>
+        <div class="prenda" id="prenda" hidden>
+          <span class="prenda-label">PRENDA</span>
+          <p id="prenda-texto"></p>
+          <button class="btn ghost chico" id="btn-otra-prenda">Otra prenda</button>
+        </div>
+      </div>
+
+      <!-- reparto de tragos (previa, al acertar rápido) -->
+      <div class="reparto" id="reparto" hidden>
+        <p class="reparto-titulo" id="reparto-titulo"></p>
+        <div class="chips" id="chips-reparto"></div>
+      </div>
+
+      <div class="res-acciones">
+        <button class="btn primario" id="btn-siguiente" hidden>Siguiente ▸</button>
+        <button class="btn ghost" id="btn-compartir" hidden>Compartir</button>
+      </div>
+      <p class="res-nota" id="res-nota"></p>
+    </section>
+  </section>
+</main>
+
+<footer class="pie">
+  Para la previa 🇦🇷 · Fragmentos de 30&nbsp;s vía iTunes · Bebé con moderación
+</footer>
+
+<!-- ─────────── MODALES ─────────── -->
+<div class="overlay" id="overlay" hidden></div>
+
+<div class="modal" id="modal-ayuda" hidden>
+  <button class="modal-close" data-cerrar>✕</button>
+  <h2>Cómo se juega</h2>
+  <ol class="lista">
+    <li>Suena un fragmento de la canción. Arrancás con <b>1 segundo</b>.</li>
+    <li>Escribí el nombre y elegí una opción de la lista.</li>
+    <li>Si errás o saltás se desbloquea más audio: <b>1 → 2 → 4 → 7 → 11 → 16</b> s.</li>
+    <li>Tenés <b>6 intentos</b>.</li>
+  </ol>
+  <h3>Modo Previa 🍻</h3>
+  <ul class="lista">
+    <li>Se juega por turnos: en cada ronda adivina un jugador.</li>
+    <li><b>Cada error</b> del que adivina: 1 trago. <b>Cada salto</b>: 1 trago.</li>
+    <li><b>Acierta en el 1er intento</b>: reparte 3 tragos a quien quiera. En el 2º, 2. En el 3º, 1.</li>
+    <li><b>No la saca</b>: fondo blanco (3 tragos) y le toca una <b>prenda</b>.</li>
+    <li>Los demás pueden <b>robar</b>: apenas el del turno erra aparece el botón <b>“Alguien la robó”</b>. Elegís quién roba y qué canción es. Si acierta, el del turno se come el fondo y el ladrón reparte; si erra, toma el ladrón.</li>
+  </ul>
+  <h3>Poderes 🎡</h3>
+  <ul class="lista">
+    <li>Se arranca con la <b>mano vacía</b>: los poderes se ganan.</li>
+    <li>Cada vez que <b>acertás una canción</b> girás la ruleta, que te puede dar un poder o dejarte con las manos vacías.</li>
+    <li>Los de tu mano se usan tocándolos. El <b>Escudo</b> salta solo al perder; el <b>Espejo</b> te pregunta cuando te reparten un trago, así elegís si lo gastás o te lo bancás.</li>
+  </ul>
+  <p class="mini">La intensidad multiplica los tragos: Suave ×1 · Picante ×2 · Fatal ×3. Con “sin alcohol” los tragos pasan a ser puntos de castigo.</p>
+  <p class="legal">+18. Tomá con moderación y si tomaste, no manejes.</p>
+</div>
+
+<div class="modal" id="modal-stats" hidden>
+  <button class="modal-close" data-cerrar>✕</button>
+  <h2>Estadísticas (modo diario)</h2>
+  <div class="stats-grid" id="stats-grid"></div>
+  <h3>Distribución</h3>
+  <div class="dist" id="dist"></div>
+  <button class="btn ghost chico" id="btn-reset">Borrar estadísticas</button>
+</div>
+
+<div class="modal" id="modal-marcador" hidden>
+  <button class="modal-close" data-cerrar>✕</button>
+  <h2>Marcador</h2>
+  <div class="tabla" id="tabla-marcador"></div>
+  <div class="res-acciones" style="margin-top:16px">
+    <button class="btn ghost chico" id="btn-terminar">Terminar previa</button>
+  </div>
+</div>
+
+<div class="modal" id="modal-final" hidden>
+  <h2>Se terminó la previa 🏁</h2>
+  <div class="podio" id="podio"></div>
+  <div class="premios" id="premios"></div>
+  <div class="res-acciones" style="margin-top:18px">
+    <button class="btn primario" id="final-compartir">Compartir</button>
+    <button class="btn ghost" id="final-revancha">Revancha</button>
+  </div>
+  <button class="btn ghost chico centrado" id="final-cerrar" style="margin-top:10px">Cerrar</button>
+</div>
+
+<div class="modal" id="modal-config" hidden>
+  <button class="modal-close" data-cerrar>✕</button>
+  <h2>Opciones</h2>
+  <label class="fila">
+    <span>Volumen</span>
+    <input type="range" id="rng-volumen" min="0" max="100" value="80">
+  </label>
+  <label class="fila">
+    <span>Aceptar solo el título exacto</span>
+    <input type="checkbox" id="chk-estricto">
+  </label>
+  <label class="fila">
+    <span>Sonidos</span>
+    <input type="checkbox" id="chk-sonido" checked>
+  </label>
+  <label class="fila">
+    <span>Vibración</span>
+    <input type="checkbox" id="chk-vibrar" checked>
+  </label>
+  <h3>Conexión</h3>
+  <p class="mini" id="diag-texto">—</p>
+  <button class="btn ghost chico" id="btn-diagnostico">Probar conexión</button>
+</div>
+
+<div class="modal" id="modal-espejo" hidden>
+  <h2>🪞 Te mandaron un trago</h2>
+  <p class="espejo-quien" id="espejo-quien"></p>
+  <p class="mini" id="espejo-detalle"></p>
+  <div class="espejo-opciones">
+    <button class="btn primario" id="espejo-usar">Usar el espejo 🪞</button>
+    <button class="btn ghost" id="espejo-pasar">Me lo banco</button>
+  </div>
+  <p class="mini" id="espejo-nota"></p>
+</div>
+
+<div class="modal" id="modal-ruleta" hidden>
+  <h2 id="ruleta-titulo">La ruleta</h2>
+  <p class="mini" id="ruleta-sub">Girando…</p>
+  <div class="ruleta-caja" id="ruleta-caja">
+    <div class="ruleta-brillo"></div>
+    <div class="ruleta-bulbos" id="ruleta-bulbos"></div>
+    <svg class="ruleta" id="ruleta" viewBox="0 0 200 200" aria-hidden="true"></svg>
+    <div class="ruleta-aguja"><span></span></div>
+    <div class="ruleta-centro" id="ruleta-cara">🎡</div>
+  </div>
+  <div class="premio-carta" id="premio-carta">
+    <p class="ruleta-nombre" id="ruleta-nombre"></p>
+    <p class="ruleta-desc" id="ruleta-desc"></p>
+  </div>
+  <button class="btn primario" id="ruleta-ok" disabled>Girando…</button>
+</div>
+
+<div class="modal" id="modal-robo" hidden>
+  <button class="modal-close" data-cerrar>✕</button>
+  <h2 id="robo-titulo">Robo 🖐️</h2>
+
+  <div id="robo-paso1">
+    <p class="mini" id="robo-intro">El del turno ya erró, así que la canción está en juego. ¿Quién la roba?</p>
+    <div class="chips" id="robo-jugadores"></div>
+  </div>
+
+  <div id="robo-paso2" hidden>
+    <p class="robo-quien" id="robo-quien"></p>
+    <div class="buscador">
+      <input id="robo-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
+             placeholder="¿Qué canción es?">
+      <ul class="sugerencias" id="robo-sugerencias" hidden></ul>
+    </div>
+    <div class="res-acciones" style="margin-top:12px">
+      <button class="btn ghost" id="robo-volver">Volver</button>
+      <button class="btn primario" id="robo-enviar" disabled>Robar</button>
+    </div>
+    <p class="mini" id="robo-riesgo"></p>
+  </div>
+</div>
+
+<canvas id="confeti" aria-hidden="true"></canvas>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="catalogo.js"></script>
+<script src="prendas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

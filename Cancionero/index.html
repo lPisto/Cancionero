@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f14">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cancionero">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="Adiviná la canción escuchando la menor cantidad de segundos. Modo Previa para jugar en grupo con un solo celular.">
+<meta property="og:title" content="Cancionero — El juego de la previa">
+<meta property="og:description" content="Adiviná la canción escuchando la menor cantidad de segundos.">
+<meta property="og:type" content="website">
+<title>Cancionero — El juego de la previa</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍻</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=1.0.0">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="icon-btn" id="btn-ayuda" title="Cómo se juega" aria-label="Cómo se juega">?</button>
+  <h1 class="logo">Cancion<span>ero</span></h1>
+  <span class="version" id="version">V1</span>
+</header>
+
+<main class="app">
+
+  <!-- ══════════════════ INICIO ══════════════════ -->
+  <section class="pantalla" id="pantalla-inicio">
+    <div class="seg" id="seg-modo" role="tablist" aria-label="Modo de juego">
+      <button class="seg-btn activo" data-modo="previa" role="tab">Previa 🍻</button>
+      <button class="seg-btn" data-modo="diaria" role="tab">Diaria</button>
+      <button class="seg-btn" data-modo="infinita" role="tab">Infinita</button>
+    </div>
+
+    <!-- ─── Setup Previa ─── -->
+    <div id="setup-previa">
+      <h2 class="titulo-seccion">Armá la previa</h2>
+
+      <div class="bloque">
+        <label class="etiqueta" for="input-jugador">Jugadores <span class="tenue" id="contador-jugadores">(0 de 12)</span></label>
+        <div class="alta-jugador">
+          <input id="input-jugador" type="text" maxlength="15" placeholder="Nombre" autocomplete="off" aria-describedby="aviso-jugadores">
+          <button class="btn primario chico" id="btn-agregar">Agregar</button>
+        </div>
+        <p class="mini" id="aviso-jugadores">Mínimo 2 jugadores, máximo 12.</p>
+        <ul class="jugadores" id="lista-jugadores"></ul>
+      </div>
+
+      <div class="bloque" id="filtros-previa"></div>
+
+      <button class="btn primario grande" id="btn-empezar-previa" disabled>Empezar la partida</button>
+    </div>
+
+    <!-- ─── Setup Diaria ─── -->
+    <div id="setup-diaria" hidden>
+      <h2 class="titulo-seccion">Canción del día</h2>
+      <p class="mini">La misma canción para todos, todos los días. Sin filtros.</p>
+      <div id="diaria-estado"></div>
+      <button class="btn primario grande" id="btn-empezar-diaria">Jugar la del día</button>
+    </div>
+
+    <!-- ─── Setup Infinita ─── -->
+    <div id="setup-infinita" hidden>
+      <h2 class="titulo-seccion">Modo Infinito</h2>
+      <p class="mini">Canciones al azar, sin límite de rondas.</p>
+      <div class="rachas">
+        <div class="racha-card"><b id="racha-actual">0</b><span>Racha actual</span></div>
+        <div class="racha-card"><b id="racha-mejor">0</b><span>Mejor racha</span></div>
+      </div>
+      <div class="bloque" id="filtros-infinita"></div>
+      <button class="btn primario grande" id="btn-empezar-infinita">Empezar</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════ TURNO (Previa) ══════════════════ -->
+  <section class="pantalla" id="pantalla-turno" hidden>
+    <p class="ronda-info" id="turno-ronda">Ronda 1 de 5</p>
+    <div class="turno-card" id="turno-card">
+      <div class="turno-avatar" id="turno-avatar">🦊</div>
+      <p class="turno-texto">Le toca a <b id="turno-nombre">—</b> <span id="turno-emoji"></span></p>
+    </div>
+    <button class="btn primario grande" id="btn-listo">¡Listo!</button>
+    <button class="btn fantasma" id="btn-ver-marcador">Ver marcador</button>
+    <button class="btn fantasma chico" id="btn-salir-previa">⟵ Inicio</button>
+  </section>
+
+  <!-- ══════════════════ JUEGO ══════════════════ -->
+  <section class="pantalla" id="pantalla-juego" hidden>
+    <div class="juego-head">
+      <p class="ronda-info" id="juego-ronda"></p>
+      <p class="intento-info" id="juego-intento">Intento 1 de 6</p>
+    </div>
+
+    <p class="debug" id="debug-cancion" hidden></p>
+
+    <div class="player">
+      <div class="barra" id="barra">
+        <div class="barra-progreso" id="barra-progreso"></div>
+        <div class="barra-marcas" id="barra-marcas"></div>
+      </div>
+      <div class="barra-labels"><span id="barra-desbloqueado">1 s</span><span>16 s</span></div>
+      <button class="btn-play" id="btn-play" aria-label="Reproducir fragmento">▶</button>
+      <p class="estado" id="estado">Tocá play para escuchar 1 segundo</p>
+      <button class="btn primario" id="btn-reintentar" hidden>Reintentar</button>
+    </div>
+
+    <ol class="intentos" id="intentos"></ol>
+
+    <div class="zona-respuesta" id="zona-respuesta">
+      <div class="buscador">
+        <input id="input" type="text" placeholder="Escribí el título o el artista" autocomplete="off"
+               autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Buscar canción"
+               aria-autocomplete="list" aria-controls="sugerencias">
+        <button class="btn-clear" id="btn-clear" hidden aria-label="Borrar">✕</button>
+        <ul class="sugerencias" id="sugerencias" role="listbox" hidden></ul>
+      </div>
+      <div class="acciones">
+        <button class="btn fantasma" id="btn-saltar">Saltar (+1 s)</button>
+        <button class="btn primario" id="btn-enviar" disabled>Enviar</button>
+      </div>
+    </div>
+
+    <button class="btn fantasma chico" id="btn-salir-juego">⟵ Inicio</button>
+  </section>
+
+  <!-- ══════════════════ RESULTADO DE RONDA ══════════════════ -->
+  <section class="pantalla" id="pantalla-resultado" hidden>
+    <p class="veredicto" id="veredicto">¡Correcto!</p>
+    <p class="veredicto-detalle" id="veredicto-detalle"></p>
+
+    <div class="ficha">
+      <img class="caratula" id="res-caratula" alt="Carátula del álbum" width="120" height="120">
+      <div class="ficha-datos">
+        <p class="ficha-titulo" id="res-titulo"></p>
+        <p class="ficha-artista" id="res-artista"></p>
+        <p class="ficha-anio" id="res-anio"></p>
+      </div>
+    </div>
+
+    <p class="mini" id="res-racha" hidden></p>
+    <button class="btn fantasma" id="btn-play-completo">▶ Escuchar el fragmento completo (30 s)</button>
+    <ol class="intentos" id="res-intentos"></ol>
+    <button class="btn primario grande" id="btn-continuar">Continuar</button>
+    <button class="btn fantasma chico" id="btn-compartir-ronda" hidden>Compartir</button>
+  </section>
+
+  <!-- ══════════════════ MARCADOR ══════════════════ -->
+  <section class="pantalla" id="pantalla-marcador" hidden>
+    <h2 class="titulo-seccion">Marcador</h2>
+    <p class="ronda-info" id="marcador-ronda"></p>
+    <table class="tabla" id="tabla-marcador"></table>
+    <button class="btn primario grande" id="btn-volver-marcador">Seguir jugando</button>
+  </section>
+
+  <!-- ══════════════════ FINAL ══════════════════ -->
+  <section class="pantalla" id="pantalla-final" hidden>
+    <p class="veredicto" id="final-titulo"></p>
+    <div class="podio" id="podio"></div>
+    <table class="tabla" id="tabla-final"></table>
+    <button class="btn primario grande" id="btn-compartir">Compartir</button>
+    <button class="btn fantasma" id="btn-jugar-de-nuevo">Jugar de nuevo</button>
+    <button class="btn fantasma" id="btn-volver-inicio">Volver al inicio</button>
+  </section>
+
+</main>
+
+<footer class="pie">
+  <span id="pie-catalogo"></span>
+</footer>
+
+<!-- ══════════════════ AYUDA ══════════════════ -->
+<div class="modal" id="modal-ayuda" hidden>
+  <div class="modal-caja" role="dialog" aria-modal="true" aria-labelledby="ayuda-titulo">
+    <h2 id="ayuda-titulo">Cómo se juega</h2>
+    <ul class="lista-ayuda">
+      <li>Sonás <b>1 segundo</b> de una canción. Si no la adivinás, se desbloquean más segundos: 2, 4, 7, 11 y 16.</li>
+      <li>Tenés <b>6 intentos</b>. Cuanto antes acertás, más puntos: 10, 8, 6, 4, 2 y 1.</li>
+      <li>Podés <b>saltar</b> un intento para escuchar más segundos: gasta un intento igual.</li>
+      <li>La respuesta se elige de la lista de sugerencias, así no hay errores de tipeo.</li>
+      <li><b>Modo Previa:</b> de 2 a 12 jugadores por turnos en un solo celular, 5 rondas. Gana quien suma más puntos.</li>
+      <li><b>Modo Diaria:</b> una canción por día, igual para todos. <b>Modo Infinita:</b> sin límite, con racha.</li>
+    </ul>
+    <p class="aviso-responsable">🍻 Cancionero está pensado para juntadas. Si tomás, hacelo con moderación: no es necesario tomar alcohol para jugar, y nunca manejes después de tomar.</p>
+    <button class="btn primario" id="btn-cerrar-ayuda">Entendido</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="catalogo.js?v=1.0.0"></script>
+<script src="app.js?v=1.0.0"></script>
+</body>
+</html>
