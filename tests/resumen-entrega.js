@@ -27,8 +27,9 @@ Entorno de ejecución: ${r.versiones.chrome} · ${r.versiones.firefox} · Window
 | A2 | Parte A — Implementar la aplicación con un agente de IA | Cancionero V1 funcionando, implementada con Claude Code (Claude Opus 5). Agente, prompts y problemas documentados → \`docs/02-implementacion-con-ia.md\` | COMPLETO |
 | B1 | Parte B — Especificación de casos de prueba | ${r.resumen.total} casos especificados en \`tests/casos.js\`, con prerrequisitos, datos de prueba, pasos y resultado esperado → índice en \`docs/03-casos-de-prueba.md\` | COMPLETO |
 | B2 | Parte B — Ejecución de casos de prueba | ${r.resumen.PASSED + r.resumen.FAILED} de ${r.resumen.total} ejecutados de punta a punta, de forma automatizada sobre la app real con audio real | COMPLETO |
-| B3 | Parte B — Reportes de defectos | 6 defectos documentados con el template de la cátedra → \`docs/04-reportes-de-defectos.md\` | COMPLETO |
+| B3 | Parte B — Reportes de defectos | 8 defectos documentados con el template de la cátedra → \`docs/04-reportes-de-defectos.md\` | COMPLETO |
 | B4 | Parte B — Reporte de ejecución de casos de prueba | Reporte generado con el detalle paso a paso (esperado vs. obtenido) → \`tests/salida/reporte-ejecucion.md\` | COMPLETO |
+| — | Extra: cobertura de criterios de aceptación | Matriz de los 50 criterios de las 12 historias contra los 28 casos; los que ningún caso alcanzaba se verifican aparte → \`tests/salida/cobertura-criterios.md\` | COMPLETO |
 
 **Resultado de la ejecución:** ${r.resumen.PASSED} PASSED · ${r.resumen.FAILED} FAILED · ${r.resumen.BLOCKED} BLOCKED · ${r.resumen["NOT RUN"]} NOT RUN · **${r.resumen.aprobacion} de aprobación** sobre los casos ejecutados.
 
@@ -57,6 +58,8 @@ md += `
 | DF-04 | Firefox informa que no puede decodificar el fragmento al cortarlo | Low | **Open** — a confirmar en un Firefox instalado desde mozilla.org |
 | DF-05 | El autocompletado se cierra solo si se vuelve a escribir enseguida | Medium | **Closed / Fixed** — encontrado por la suite al ejecutar TC-07 |
 | DF-06 | Al fallar la carga del audio, el buscador sigue a la vista | Low | **Closed / Fixed** — encontrado por la suite al ejecutar TC-24 |
+| DF-07 | El filtro por artista deja afuera las colaboraciones | Medium | **Closed / Fixed** — encontrado jugando; cubierto por la verificación de US-12.1 |
+| DF-08 | Se puede empezar una partida con menos canciones que turnos, sin aviso | Medium | **Closed / Fixed** — encontrado jugando; cubierto por la verificación de US-07.4 |
 
 El detalle de cada uno está en \`docs/04-reportes-de-defectos.md\`.
 
@@ -110,9 +113,20 @@ md += `
    RNF-01 midiendo el ancho de scroll y el tamaño real de los botones a 360 px; RNF-05
    corriendo la misma ronda en dos motores distintos (Blink y Gecko).
 
-5. **Qué queda para la V2.** Resolver el conflicto de US-02 (DF-01), confirmar DF-04 en un
-   Firefox oficial, ejecutar TC-18 completo cuando haya un Android disponible, y decidir qué
-   hacer con los 5 temas anteriores a 1970 que ningún filtro de época alcanza.
+5. **Los 28 casos declarados no cubren todos los criterios de aceptación.** De los 50
+   criterios de las 12 historias, 12 no quedaban alcanzados por ningún caso o lo estaban solo
+   en parte. Se verificaron aparte en \`tests/cobertura-criterios.js\`: **49 de 50 en OK**, y el
+   único parcial (US-09.2) es el menú de compartir de Android. Dos defectos salieron
+   justamente de ahí, jugando una previa filtrada por artista: **DF-07** (el filtro por artista
+   ignoraba las colaboraciones, así que "Duki" traía 1 canción en vez de 2) y **DF-08** (la app
+   dejaba empezar una partida con menos canciones que turnos sin avisar, y sonaba siempre la
+   misma). Ninguno de los 28 casos los habría encontrado, porque todos los de filtros usan
+   combinaciones con muchas canciones o con cero.
+
+6. **Qué queda para la V2.** Resolver el conflicto de US-02 (DF-01), confirmar DF-04 en un
+   Firefox oficial, ejecutar TC-18 completo cuando haya un Android disponible, decidir qué
+   hacer con los 5 temas anteriores a 1970 que ningún filtro de época alcanza, y evaluar si
+   se ofrecen en el desplegable los 59 artistas que solo aparecen en colaboraciones.
 `;
 
 const destino = path.join(__dirname, "..", "docs", "05-estado-de-la-entrega.md");

@@ -6,7 +6,8 @@
     "test": "node tests/ejecutar.js",
     "test:rnf": "node tests/inspeccion-rnf.js",
     "capturas": "node tests/capturas.js",
-    "reporte": "node tests/resumen-entrega.js"
+    "reporte": "node tests/resumen-entrega.js",
+    "cobertura": "node tests/cobertura-criterios.js"
   },
   "license": "ISC",
   "description": "Cancionero V1 - Proyecto Integrador de Testing de Aplicaciones, Grupo 7, Entrega 01",

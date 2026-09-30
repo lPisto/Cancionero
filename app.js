@@ -129,11 +129,23 @@ function enDecada(anio, idDecada) {
   return y >= d.desde && y <= d.hasta;
 }
 
+/* En el catálogo el artista viene como el crédito completo del tema, así que las
+   colaboraciones son entradas propias ("Duki" y "Duki & KHEA" son dos valores
+   distintos). Comparar por igualdad dejaba afuera las colaboraciones: elegir
+   "Duki" devolvía una sola canción. Se compara por participación. */
+const SEPARADORES = /\s*(?:,|&| y | feat\.?| ft\.?| con | x )\s*/i;
+
+function participa(credito, artista) {
+  const c = normalizar(credito), a = normalizar(artista);
+  if (c === a) return true;                       /* el crédito completo, tal cual */
+  return c.split(SEPARADORES).includes(a);        /* el artista, dentro de una colaboración */
+}
+
 /* US-12: los filtros se combinan; sin filtros se juega con todo el catálogo */
 function filtrar(f) {
   return CATALOGO.filter((c) =>
     (!f.genero  || c.c === f.genero) &&
-    (!f.artista || c.a === f.artista) &&
+    (!f.artista || participa(c.a, f.artista)) &&
     (!f.decada  || enDecada(c.y, f.decada))
   );
 }
@@ -182,14 +194,37 @@ function pintarFiltros(contenedorId, modo) {
 }
 
 /* US-12 crit. 2 y 4: se muestra cuántas canciones cumplen la combinación y,
-   si son 0, se avisa y no se puede empezar. */
+   si son 0, se avisa y no se puede empezar.
+   Además se avisa cuando quedan menos canciones que turnos: en ese caso no se
+   puede cumplir US-07 crit. 4 (una canción distinta por turno) y conviene que
+   el jugador lo sepa antes de empezar, en vez de descubrirlo jugando. */
 function actualizarConteo(modo) {
   const n = filtrar(filtros[modo]).length;
   const el = $(`${modo}-conteo`);
-  el.textContent = n === 0
-    ? "0 canciones — no hay canciones con esos filtros"
-    : `${n} ${n === 1 ? "canción disponible" : "canciones disponibles"}`;
-  el.classList.toggle("vacio", n === 0);
+  if (!el) return;
+
+  let texto, vacio = n === 0, aviso = false;
+  if (n === 0) {
+    texto = "0 canciones — no hay canciones con esos filtros";
+  } else {
+    texto = `${n} ${n === 1 ? "canción disponible" : "canciones disponibles"}`;
+    if (modo === "previa") {
+      const turnos = previa.jugadores.length * RONDAS_PREVIA;
+      if (turnos > 0 && n < turnos) {
+        aviso = true;
+        texto += n === 1
+          ? ` — la partida son ${turnos} turnos y hay una sola canción: va a sonar siempre la misma`
+          : ` — la partida son ${turnos} turnos, así que algunas se van a repetir`;
+      }
+    } else if (n === 1) {
+      aviso = true;
+      texto += " — con una sola canción siempre va a sonar la misma";
+    }
+  }
+
+  el.textContent = texto;
+  el.classList.toggle("vacio", vacio);
+  el.classList.toggle("aviso", aviso);
   if (modo === "infinita") $("btn-empezar-infinita").disabled = n === 0;
   else actualizarBotonEmpezarPrevia();
 }
@@ -243,7 +278,9 @@ function pintarListaJugadores() {
   $("aviso-jugadores").textContent = previa.jugadores.length >= MAX_JUGADORES
     ? `Máximo ${MAX_JUGADORES} jugadores.`
     : `Mínimo ${MIN_JUGADORES} jugadores, máximo ${MAX_JUGADORES}.`;
-  actualizarBotonEmpezarPrevia();
+  /* La cantidad de turnos depende de los jugadores, así que el aviso de
+     "menos canciones que turnos" se recalcula cada vez que cambia la lista. */
+  actualizarConteo("previa");
 }
 
 function actualizarBotonEmpezarPrevia() {

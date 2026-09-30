@@ -16,6 +16,7 @@ npx playwright-core install firefox   # solo hace falta para TC-28
 node tests/ejecutar.js                # los 28 casos
 node tests/ejecutar.js TC-01 TC-07    # un subconjunto
 node tests/inspeccion-rnf.js          # RNF-04, RNF-08 y RNF-09, por inspección
+node tests/cobertura-criterios.js     # matriz de los 50 criterios de aceptación
 ```
 
 Una corrida parcial escribe en `reporte-ejecucion-parcial.md` y `resultados-parcial.json`,
@@ -85,6 +86,19 @@ de navegador limpio y escribe `tests/salida/reporte-ejecucion.md` y `tests/salid
   credenciales, no registra service worker y los assets van versionados (`?v=1.0.0`), y el
   aviso de consumo responsable está en la pantalla de ayuda. Esa inspección está
   automatizada en `tests/inspeccion-rnf.js`, así que tampoco depende de mirar a ojo.
+
+## Cobertura de criterios de aceptación
+
+Los 28 casos declarados **no cubren de a uno los 50 criterios** de las 12 historias: 12
+quedaban sin alcanzar o alcanzados solo en parte (por ejemplo, ningún caso verificaba que el
+Modo Diario no tuviera filtros, ni que el podio mostrara tres puestos, ni que sin filtros se
+jugara con todo el catálogo). `tests/cobertura-criterios.js` arma la matriz completa y
+verifica esos criterios contra la aplicación: **49 de 50 en OK**, y el único parcial
+(US-09.2) es el menú de compartir de Android.
+
+De esa verificación salieron dos defectos que ningún caso declarado habría encontrado:
+**DF-07** (el filtro por artista ignoraba las colaboraciones) y **DF-08** (se podía empezar
+una partida con menos canciones que turnos, sin aviso).
 
 ## Resultado de la última ejecución
 

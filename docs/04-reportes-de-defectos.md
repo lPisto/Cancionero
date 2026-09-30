@@ -14,6 +14,8 @@ indica qué pasó con cada uno en esta versión.
 | DF-04 | Firefox informa que no puede decodificar el fragmento al cortarlo | Low | Low | **Open** — a confirmar | TC-28 |
 | DF-05 | El autocompletado se cierra solo si se vuelve a escribir enseguida | Medium | Medium | **Closed / Fixed** | TC-07 |
 | DF-06 | Al fallar la carga del audio, el buscador sigue a la vista | Low | Medium | **Closed / Fixed** | TC-24 |
+| DF-07 | El filtro por artista deja afuera las colaboraciones | Medium | High | **Closed / Fixed** | US-12.1 |
+| DF-08 | Se puede empezar una partida con menos canciones que turnos, sin aviso | Medium | High | **Closed / Fixed** | US-07.4 |
 
 ---
 
@@ -302,3 +304,147 @@ Es un recordatorio útil: **una aserción que mira el estado interno en vez del 
 visible puede tapar el defecto que debería encontrar.** El resto de los elementos que se
 ocultan con `hidden` (`.pantalla`, `.modal`, `.toast`) sí tenían su regla propia; faltaba
 justo `.zona-respuesta`.
+
+---
+
+## DF-07 — El filtro por artista deja afuera las colaboraciones
+
+| Campo | Valor |
+|---|---|
+| **Defect ID** | DF-07 |
+| **Status** | **Closed / Fixed en la V1** |
+| **Project** | Cancionero |
+| **Reporter** | Lucas Pistolesi (prueba exploratoria jugando una previa) |
+| **Type** | Bug |
+| **Priority** | High |
+| **Severity** | Medium |
+| **Test case** | Ninguno de los 28 declarados lo alcanzaba. Cubierto ahora por la verificación del criterio **US-12.1** |
+| **User story** | US-12 — Filtrar el repertorio |
+
+**Description / Overview**
+En el catálogo, el artista de cada tema es el **crédito completo**, así que las
+colaboraciones son entradas distintas: `"Duki"` y `"Duki & KHEA"` son dos valores
+separados. El filtro comparaba por igualdad exacta (`c.a === f.artista`), de modo que
+elegir "Duki" devolvía **una sola canción** en lugar de las dos en las que participa.
+
+No era un caso aislado: **157 de los 284 artistas del desplegable quedaban con una sola
+canción** y 274 de 284 con menos de 10, que son los turnos de una partida de 2 jugadores.
+
+**Reproduction Steps**
+1. Abrir la aplicación y elegir "Modo Previa".
+2. Cargar dos jugadores.
+3. En el filtro de Artista, elegir "Duki".
+4. Mirar el contador de canciones disponibles.
+
+**Expected Behavior**
+Elegir un artista trae las canciones donde ese artista participa, incluidas las
+colaboraciones: "Duki" debería dar 2 canciones ("Goteo" y "She Don't Give A Fo").
+
+**Actual Behavior**
+Daba 1 sola canción ("Goteo"). "She Don't Give A Fo" quedaba afuera por estar acreditada
+como "Duki & KHEA".
+
+**Incidence / Severity / Probability of reproduction**
+Severidad Medium: el filtro funciona, pero devuelve muchas menos canciones de las que el
+jugador espera. Prioridad High porque es la causa directa de que la partida se vuelva
+injugable (ver DF-08). Reproducción: 100 % en los 48 créditos que son colaboraciones.
+
+**Story and Acceptance Criteria affected**
+US-12 criterio 1 ("filtros por artista") y, en cadena, US-07 criterio 4.
+
+**Browsers tested** · Google Chrome 154, Windows 11.
+
+**Fix aplicado** — en `app.js`, se compara por participación en lugar de por igualdad:
+
+```js
+const SEPARADORES = /\s*(?:,|&| y | feat\.?| ft\.?| con | x )\s*/i;
+
+function participa(credito, artista) {
+  const c = normalizar(credito), a = normalizar(artista);
+  if (c === a) return true;                  // el crédito completo, tal cual
+  return c.split(SEPARADORES).includes(a);   // el artista, dentro de una colaboración
+}
+```
+
+**Verificación del fix**
+- "Duki" pasó de 1 a 2 canciones, "J Balvin" de 4 a 9, "Shakira" de 9 a 11.
+- **24 artistas ganaron canciones y ninguno perdió**, así que no hay regresión.
+- Los nombres de banda que contienen separadores **no se rompieron**, porque primero se
+  compara el crédito completo: "Earth, Wind & Fire" sigue dando 1 y "Wisin & Yandel" 3.
+- La premisa de TC-22 se mantiene: "Soda Stereo" + 2020s sigue dando 0 canciones.
+
+**Notes — limitación conocida, queda para la V2**
+El desplegable se sigue armando con los créditos completos, así que un artista que **solo**
+aparece en colaboraciones no es elegible (por ejemplo Bizarrap, Calvin Harris o Justin
+Bieber, que no tienen ningún tema a su nombre solo). Son 59 casos. Ofrecerlos exige partir
+los créditos para armar la lista, y ahí aparece la basura: "Earth, Wind & Fire" se
+convierte en "Earth", "Wind" y "Fire". De los 59, solo 9 aparecen en 2 o más créditos y
+podrían agregarse sin ensuciar la lista. Se decidió no hacerlo en V1: US-12 pide filtrar
+por artista y eso ya se cumple.
+
+---
+
+## DF-08 — Se puede empezar una partida con menos canciones que turnos, sin ningún aviso
+
+| Campo | Valor |
+|---|---|
+| **Defect ID** | DF-08 |
+| **Status** | **Closed / Fixed en la V1** |
+| **Project** | Cancionero |
+| **Reporter** | Lucas Pistolesi (prueba exploratoria jugando una previa) |
+| **Type** | Bug |
+| **Priority** | High |
+| **Severity** | Medium |
+| **Test case** | Ninguno de los 28 declarados lo alcanzaba. Cubierto ahora por la verificación del criterio **US-07.4** |
+| **User story** | US-07 — Turnos rotativos |
+
+**Description / Overview**
+US-07 criterio 4 promete que "cada turno tiene una canción distinta dentro de la partida".
+Una partida son `jugadores × 5` turnos: con 2 jugadores, 10 canciones. Si los filtros dejan
+menos canciones que turnos, el criterio no se puede cumplir. La aplicación dejaba empezar
+igual y **sin avisar nada**, y el jugador lo descubría jugando: con un filtro de una sola
+canción, sonaba la misma en todos los turnos.
+
+**Reproduction Steps**
+1. "Modo Previa" con 2 jugadores.
+2. Filtrar por un artista con pocas canciones.
+3. Tocar "Empezar la partida" y jugar tres o cuatro turnos seguidos.
+
+**Expected Behavior**
+Antes de empezar, la aplicación avisa que con esos filtros no alcanzan las canciones para
+que cada turno tenga una distinta.
+
+**Actual Behavior**
+Empezaba sin decir nada. El contador solo mostraba "1 canción disponible", sin relacionarlo
+con la cantidad de turnos, y todos los turnos jugaban la misma canción.
+
+**Incidence / Severity / Probability of reproduction**
+Severidad Medium: la partida es jugable pero pierde la gracia, y contradice un criterio de
+aceptación. Prioridad High porque, combinado con DF-07, alcanzaba con elegir casi cualquier
+artista para caer en el caso. Reproducción: 100 % cuando el pool es menor que los turnos.
+
+**Story and Acceptance Criteria affected**
+US-07 criterio 4. Relacionado con US-12 criterio 2.
+
+**Browsers tested** · Google Chrome 154, Windows 11.
+
+**Fix aplicado** — en `app.js`, `actualizarConteo` compara las canciones disponibles con
+los turnos de la partida y avisa en el mismo contador, resaltado en ámbar:
+
+> *2 canciones disponibles — la partida son 10 turnos, así que algunas se van a repetir*
+
+Con una sola canción el texto es explícito: *"va a sonar siempre la misma"*. En Modo
+Infinito se avisa cuando queda una sola canción, porque tampoco se puede cumplir US-11
+criterio 1 ("otra canción distinta de la anterior"). El aviso se recalcula tanto al cambiar
+los filtros como al agregar o quitar jugadores, porque los turnos dependen de la cantidad
+de jugadores.
+
+**Se decidió avisar y no bloquear:** jugar una previa temática de un solo artista es un uso
+legítimo. Lo que estaba mal era no decirlo.
+
+**Notes**
+El mecanismo que evita repetir ya existía (`previa.usadas`) y funcionaba: no repite ninguna
+canción hasta agotar el pool, y recién ahí lo reinicia. El defecto no era la rotación sino
+la falta de aviso cuando el pool es demasiado chico. Con los dos arreglos, el caso que
+disparó el reporte pasó de *"Goteo, Goteo, Goteo, Goteo"* a alternar las dos canciones de
+Duki, y avisando de antemano.

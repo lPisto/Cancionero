@@ -40,6 +40,7 @@ npx playwright-core install firefox   # solo para TC-28 (compatibilidad)
 npm test                              # los 28 casos
 node tests/ejecutar.js TC-01 TC-07    # un subconjunto
 npm run test:rnf                      # RNF-04, RNF-08 y RNF-09, por inspección
+npm run cobertura                     # matriz de los 50 criterios de aceptación
 npm run reporte                       # regenera docs/05-estado-de-la-entrega.md
 npm run capturas                      # capturas de pantalla para la presentación
 ```
@@ -56,6 +57,11 @@ Genera `tests/salida/reporte-ejecucion.md` con el detalle paso a paso de cada ca
   requerimiento escrito es decisión del equipo, no de quien implementa.
 - El BLOCKED es **TC-18**: los dos primeros pasos necesitan un celular Android con WhatsApp.
   Los otros tres pasos se ejecutaron en Firefox y pasaron.
+
+Los 28 casos no cubren de a uno los **50 criterios de aceptación** de las 12 historias, así
+que hay una verificación aparte que completa los que quedaban sueltos:
+**49 de 50 en OK** (`tests/salida/cobertura-criterios.md`). El único parcial es US-09.2, el
+menú de compartir de Android.
 
 ## Alcance de la V1
 

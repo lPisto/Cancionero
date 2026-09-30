@@ -134,6 +134,7 @@ select:focus{outline:2px solid var(--acento);outline-offset:1px}
   background:var(--bg2);border:1px solid var(--linea);margin:0;
 }
 .conteo-filtros.vacio{border-color:var(--error);color:var(--error)}
+.conteo-filtros.aviso{border-color:rgba(247,201,72,.5);color:var(--amarillo)}
 
 /* ─────────── Rachas ─────────── */
 .rachas{display:flex;gap:10px}
